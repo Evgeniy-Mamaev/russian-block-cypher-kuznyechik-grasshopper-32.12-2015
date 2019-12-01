@@ -1,6 +1,4 @@
-NUMBER_OF_ELEMENTS = 255
 PRIMITIVE_POLYNOMIAL = int("111000011", 2)
-POWER = 7
 NUMBER_OF_BYTES = 16
 LINEAR_TRANSFORMATION_CONSTANTS = [148, 32, 133, 16, 194, 192, 1, 251, 1, 192, 194, 16, 133, 32, 148, 1]
 NONLINEAR_SUBSTITUTION = [252, 238, 221, 17, 207, 110, 49, 22, 251, 196, 250, 218, 35, 197, 4, 77, 233,
@@ -36,8 +34,19 @@ HEX_BIN_DICTIONARY = {
     'f': int("1111", 2),
 }
 
+"""
+General note: digital indexes can be used either for pointing an index in an array 
+or for showing upper (power) or lower literal index.
+"""
+
 
 def x(k, a):
+    """
+    X[k]: V 128 → V 128.
+    X[k](a) = k ⊕ a, where k, a ∈ V 128.
+    :param k: array of bytes of size 16.
+    :param a: array of bytes of size 16.
+    """
     if len(k) != NUMBER_OF_BYTES or len(a) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -45,6 +54,12 @@ def x(k, a):
 
 
 def l(array_of_bytes):
+    """
+    l(a 15 , ..., a 0 ) = ∇(148 ∙ ∆(a 15 ) + 32 ∙ ∆(a 14 ) + 133 ∙ ∆(a 13 ) + 16 ∙ ∆(a 12 ) +
+    194 ∙ ∆(a 11 ) + 192 ∙ ∆(a 10 ) + 1 ∙ ∆(a 9 ) + 251 ∙ ∆(a 8 ) + 1 ∙ ∆(a 7 ) + 192 ∙ ∆(a 6 ) +
+    194 ∙ ∆(a 5 ) + 16 ∙ ∆(a 4 ) + 133 ∙ ∆(a 3 ) + 32 ∙ ∆(a 2 ) + 148 ∙ ∆(a 1 ) + 1 ∙ ∆(a 0 )).
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -55,6 +70,12 @@ def l(array_of_bytes):
 
 
 def s(array_of_bytes):
+    """
+    S: V 128 → V 128.
+    S(a) = S(a 15 ||...||a 0 ) = π(a 15 )||...||π(a 0 ),
+    where a = a 15 ||...||a 0 ∈ V 128 , a i ∈ V 8 , i = 0, 1, ..., 15.
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -62,6 +83,13 @@ def s(array_of_bytes):
 
 
 def s_reversed(array_of_bytes):
+    """
+    S -1 : V 128 → V 128, a reverse transformation to the S.
+    S -1 (a) = S (a 15 ||...||a 0 ) = π -1 (a 15 )||...||π -1 (a 0 ),
+    где a = a 15 ||...||a 0 ∈ V 128 , a i ∈ V 8 , i = 0, 1, ..., 15,
+    π -1 – a substitution, reversed to the substitution π.
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -70,6 +98,12 @@ def s_reversed(array_of_bytes):
 
 
 def r(array_of_bytes):
+    """
+    R: V 128 → V 128
+    R(a) = R(a 15 ||...||a 0 ) = l(a 15 , ..., a 0 )||a 15 ||...||a 1 ,
+    where a = a 15 ||...||a 0 ∈ V 128 , a i ∈ V 8 , i = 0, 1, ..., 15.
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -81,6 +115,14 @@ def r(array_of_bytes):
 
 
 def r_reversed(array_of_bytes):
+    """
+    R -1 : V 128 → V 128
+    A reversed transformation to the transformation R.
+    R -1 (a) = R -1 (a 15 ||...||a 0 ) =
+    = a 14 ||a 13 ||...||a 0 ||l(a 14 , a 13 , ..., a 0 , a 15 ),
+    where a = a 15 ||...||a 0 ∈ V 128 , a i ∈ V 8 , i = 0, 1, ..., 15.
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -93,6 +135,12 @@ def r_reversed(array_of_bytes):
 
 
 def big_l(array_of_bytes):
+    """
+    L: V 128 → V 128.
+    L(a) = R 16 (a),
+    where a ∈ V 128.
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -102,6 +150,12 @@ def big_l(array_of_bytes):
 
 
 def big_l_reversed(array_of_bytes):
+    """
+    L -1 : V 128 → V 128.
+    L -1 (a) = (R -1 ) 16 (a),
+    where a ∈ V 128 ;
+    :param array_of_bytes: array of bytes of size 16.
+    """
     if len(array_of_bytes) != NUMBER_OF_BYTES:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES))
@@ -111,6 +165,13 @@ def big_l_reversed(array_of_bytes):
 
 
 def f(k, two_arrays_of_bytes):
+    """
+    F [k]: V 128 × V 128 → V 128 × V 128
+    F [k](a 1 , a 0 ) = (LSX[k](a 1 ) ⊕ a 0 , a 1 ),
+    where k, a 0 , a 1 ∈ V 128.
+    :param k: array of bytes of size 16.
+    :param two_arrays_of_bytes: two arrays of bytes of size 16.
+    """
     number_of_arrays = 2
     if len(two_arrays_of_bytes) != number_of_arrays:
         raise ValueError('The number of arrays is not equal to {0}.'.
@@ -122,6 +183,17 @@ def f(k, two_arrays_of_bytes):
 
 
 def expand_key(key):
+    """
+    The algorithm of expanding keys uses iteration constants
+    C i ∈ V 128 , i = 1, 2, ..., 32, which can be defined as follows:
+    C i = L(Vec 128 (i)), i = 1, 2, ..., 32.
+    Iterative keys K i ∈ V 128 , i = 1, 2, ..., 10, are being produced using the key
+    K = k 255 ||...||k 0 ∈ V 256 , k i ∈ V 1 , i = 0, 1, ..., 255, and are defined:
+    K 1 = k 255 ||...||k 128 ;
+    K 2 = k 127 ||...||k 0 ;
+    (K 2i + 1 , K 2i + 2 ) = F [C 8(i - 1) + 8 ]...F [C 8(i - 1) + 1 ](K 2i - 1 , K 2i ), i = 1, 2, 3, 4.
+    :param key: array of bytes of size 32.
+    """
     if len(key) != NUMBER_OF_BYTES * 2:
         raise ValueError('The array length is not equal to {0}.'.
                          format(NUMBER_OF_BYTES * 2))
@@ -144,18 +216,32 @@ def expand_key(key):
 
 
 def encrypt(iterative_keys, a):
+    """
+    E K 1 , ..., K 10 (a) = X[K 10 ]LSX[K 9 ]...LSX[K 2 ]LSX[K 1 ](a).
+    :param iterative_keys: pair of arrays of bytes of size 16.
+    :param a: array of bytes of size 16. an open text.
+    """
     for i in range(9):
         a = big_l(s(x(iterative_keys[i], a)))
     return x(iterative_keys[9], a)
 
 
 def decrypt(iterative_keys, b):
+    """
+    D K 1 , ..., K 10 (a) = X[K 1 ]S L -1 X[K 2 ]...S L -1 X[K 9 ]S L -1 X[K 10 ](a).
+    :param iterative_keys: pair of arrays of bytes of size 16.
+    :param b: array of bytes of size 16. an closed text.
+    """
     for i in range(9, 0, -1):
         b = s_reversed(big_l_reversed(x(iterative_keys[i], b)))
     return x(iterative_keys[0], b)
 
 
 def string_to_byte_array(string):
+    """
+    Converts a string to a byte array of size 16.
+    :param string: string to convert.
+    """
     if len(string) != NUMBER_OF_BYTES * 2 and len(string) != NUMBER_OF_BYTES * 4:
         raise ValueError('The array length is not equal to {0} or {1}.'.
                          format(NUMBER_OF_BYTES * 2, NUMBER_OF_BYTES * 4))
@@ -164,16 +250,21 @@ def string_to_byte_array(string):
 
 
 def byte_array_to_string(byte_array):
+    """
+    Converts a byte array of size 16 to a string.
+    :param byte_array: array to convert.
+    """
     bit_to_hex_dictionary = flip_dictionary(HEX_BIN_DICTIONARY)
     return ''.join(bit_to_hex_dictionary[a >> 4] + bit_to_hex_dictionary[a & 0b00001111] for a in byte_array)
 
 
 def multiply_elements(a, b):
+    """
+    Multiplies two elements in a GF(2 8) with the specified above generator polynomial
+    :param a: the first param.
+    :param b: the second param.
+    """
     return divide_polynomials(multiply_polynomials(a, b), PRIMITIVE_POLYNOMIAL)[1]
-
-
-def sum_elements(a, b):
-    return (a + b) % NUMBER_OF_ELEMENTS
 
 
 def flip_dictionary(dictionary):

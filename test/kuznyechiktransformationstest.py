@@ -1,7 +1,7 @@
 import unittest
 
 from kuznyechiktransformations import s, string_to_byte_array, byte_array_to_string, s_reversed, r, multiply_elements, \
-    multiply_polynomials, divide_polynomials, PRIMITIVE_POLYNOMIAL, big_l
+    multiply_polynomials, divide_polynomials, PRIMITIVE_POLYNOMIAL, big_l, expand_key, encrypt, decrypt
 
 STRING = "ffeeddccbbaa99881122334455667700"
 
@@ -40,9 +40,34 @@ class KuznyechikTest(unittest.TestCase):
         assert byte_array_to_string(
             big_l(string_to_byte_array("0e93691a0cfc60408b7b68f66b513c13"))) == "e6a8094fee0aa204fd97bcb0b44b8580"
 
+    def test_expand_key(self):
+        expected = [
+            "8899aabbccddeeff0011223344556677",
+            "fedcba98765432100123456789abcdef",
+            "db31485315694343228d6aef8cc78c44",
+            "3d4553d8e9cfec6815ebadc40a9ffd04",
+            "57646468c44a5e28d3e59246f429f1ac",
+            "bd079435165c6432b532e82834da581b",
+            "51e640757e8745de705727265a0098b1",
+            "5a7925017b9fdd3ed72a91a22286f984",
+            "bb44e25378c73123a5f32f73cdb6e517",
+            "72e9dd7416bcf45b755dbaa88e4a4043"
+        ]
+        expected_byte_arrays = list(string_to_byte_array(string) for string in expected)
+        assert expand_key(string_to_byte_array("8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef")) == \
+               expected_byte_arrays
+
+    def test_encrypt(self):
+        assert byte_array_to_string(encrypt(
+            expand_key(string_to_byte_array("8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef")),
+            string_to_byte_array("1122334455667700ffeeddccbbaa9988"))) == "7f679d90bebc24305a468d42b9d4edcd"
+
+    def test_decrypt(self):
+        assert byte_array_to_string(decrypt(
+            expand_key(string_to_byte_array("8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef")),
+            string_to_byte_array("7f679d90bebc24305a468d42b9d4edcd"))) == "1122334455667700ffeeddccbbaa9988"
+
     def test_multiply_elements(self):
-        print(multiply_elements(156, 231))
-        print(divide_polynomials(multiply_polynomials(156, 231), PRIMITIVE_POLYNOMIAL)[1])
         assert multiply_elements(156, 231) == divide_polynomials(multiply_polynomials(156, 231), PRIMITIVE_POLYNOMIAL)[
             1]
 

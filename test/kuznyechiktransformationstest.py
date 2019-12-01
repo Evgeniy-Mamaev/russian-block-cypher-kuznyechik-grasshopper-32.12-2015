@@ -1,7 +1,7 @@
 import unittest
 
 from kuznyechiktransformations import s, string_to_byte_array, byte_array_to_string, s_reversed, r, multiply_elements, \
-    multiply_polynomials, divide_polynomials, PRIMITIVE_POLYNOMIAL, big_l, expand_key, encrypt, decrypt
+    multiply_polynomials, divide_polynomials, PRIMITIVE_POLYNOMIAL, big_l, expand_key, encrypt, decrypt, NUMBER_OF_BYTES
 
 STRING = "ffeeddccbbaa99881122334455667700"
 
@@ -66,6 +66,44 @@ class KuznyechikTest(unittest.TestCase):
         assert byte_array_to_string(decrypt(
             expand_key(string_to_byte_array("8899aabbccddeeff0011223344556677fedcba98765432100123456789abcdef")),
             string_to_byte_array("7f679d90bebc24305a468d42b9d4edcd"))) == "1122334455667700ffeeddccbbaa9988"
+
+    def test_tests(self):
+        open_text = [0] * NUMBER_OF_BYTES
+        key_text = [0] * NUMBER_OF_BYTES * 2
+        cipher_text = [0] * NUMBER_OF_BYTES
+        for j in range(10):
+            with open("test_{0}/plaintext".format(j), "rb") as text:
+                for i in range(NUMBER_OF_BYTES):
+                    open_text[i] = ord(text.read(1))
+                    if open_text[i] == "":
+                        break  # end of file
+            with open("test_{0}/key".format(j), "rb") as key:
+                for i in range(NUMBER_OF_BYTES * 2):
+                    key_text[i] = ord(key.read(1))
+                    if key_text[i] == "":
+                        break  # end of file
+            with open("test_{0}/ciphertext".format(j), "rb") as cipher:
+                for i in range(NUMBER_OF_BYTES):
+                    cipher_text[i] = ord(cipher.read(1))
+                    if cipher_text[i] == "":
+                        break  # end of file
+            iterative_keys = expand_key(key_text)
+            print()
+            print("*******************")
+            print("From test_{0}:".format(j))
+            print("Encoding...")
+            print("Text: {0}".format(byte_array_to_string(open_text)))
+            print("Key: {0}".format(byte_array_to_string(key_text)))
+            print("Cipher: {0}".format(byte_array_to_string(cipher_text)))
+            result_of_encryption = encrypt(iterative_keys, open_text)
+            print("Result: {0}".format(byte_array_to_string(result_of_encryption)))
+            print("___________________")
+            print("Decoding...")
+            print("Text:   {0}".format(byte_array_to_string(open_text)))
+            result_of_decryption = decrypt(iterative_keys, result_of_encryption)
+            print("Result: {0}".format(byte_array_to_string(result_of_decryption)))
+            assert result_of_encryption == cipher_text
+            assert result_of_decryption == open_text
 
     def test_multiply_elements(self):
         assert multiply_elements(156, 231) == divide_polynomials(multiply_polynomials(156, 231), PRIMITIVE_POLYNOMIAL)[
